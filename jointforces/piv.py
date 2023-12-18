@@ -2,7 +2,7 @@ import warnings
 import os
 import gc
 import numpy as np
-import scipy.ndimage.morphology as scipy_morph
+from scipy.ndimage.morphology import binary_erosion, binary_dilation, binary_fill_holes, binary_closing
 import scipy.ndimage.measurements as scipy_meas
 from skimage.filters import gaussian, threshold_otsu, threshold_yen
 from skimage.morphology import remove_small_objects
@@ -65,11 +65,11 @@ def segment_spheroid(img, enhance=True, thres = 0.9, thres_yen= False):
         mask = img[::-1] < threshold_yen(img) * thres    
     
     # remove other objects
-    mask = scipy_morph.binary_dilation(mask, iterations=3)
-    mask = scipy_morph.binary_fill_holes(mask)
+    mask = binary_dilation(mask, iterations=3)
+    mask = binary_fill_holes(mask)
     mask = remove_small_objects(mask, min_size=1000)
-    mask = scipy_morph.binary_closing(mask, iterations=3)
-    mask = scipy_morph.binary_fill_holes(mask)
+    mask = binary_closing(mask, iterations=3)
+    mask = binary_fill_holes(mask)
 
     # identify spheroid as the most centered object
     labeled_mask, max_lbl = scipy_meas.label(mask)
@@ -216,7 +216,7 @@ def displacement_plot(img, segmentation, displacements, quiver_scale=1, color_no
                        pivot='mid',
                        **kwargs)
         
-    overlay = mask.astype(int) - scipy_morph.binary_erosion(mask, iterations=4).astype(int)
+    overlay = mask.astype(int) - binary_erosion(mask, iterations=4).astype(int)
     overlay = np.array([overlay.T,
                         np.zeros_like(overlay).T,
                         np.zeros_like(overlay).T,

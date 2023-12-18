@@ -4,7 +4,10 @@ import pandas as pd
 from glob import glob
 from tqdm import tqdm
 from natsort import natsorted
-from scipy.ndimage import distance_transform_edt
+try:
+    from scipy.ndimage import distance_transform_edt
+except ImportError:  # for older scipy versions < 1.8.0
+    from scipy.ndimage.morphology import distance_transform_edt
 from .utils import load
 import os
 import matplotlib
